@@ -1,12 +1,66 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import {Paper, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow} from "@mui/material";
+import {InputContext} from "../contexts/InputContext";
+import {CashbackTableContext} from "../contexts/CasbackTableContext";
 
 const CashbackTable = () => {
+    const [page, setPage] = React.useState(0);
+    const [rowsPerPage, setRowsPerPage] = React.useState(12);
+    const inputContext=useContext(InputContext);
+    const cashbackTableContext=useContext(CashbackTableContext);
+    const handleChangePage = (event, newPage) => {
+        setPage(newPage)
+    };
+    const calculatePeriodicPaymentAmount = () => {
+        const p =inputContext.creditAmount;
+        const i =(inputContext.profitRatio/100)+(inputContext.kkdfRatio/100)+(inputContext.bsmvRatio/100);
+        const n =inputContext.installmentValue;
+        const sonuc = p*((i*((1+i)**n)) / (( ((1+ i)**n) - 1)));
+        return sonuc;
+    }
+    const calculateMainValue=()=>{
+        var mainValue=
+            calculatePeriodicPaymentAmount()-calculateProfit()-calculateKkdf()-calculateBsmv()
+        return  mainValue;
+    }
+    const calculateKkdf = () => {
+      var kkdf =inputContext.remainingMainValue*inputContext.kkdfRatio;
+      return kkdf;
+    }
+    const calculateBsmv = () => {
+        var bsmv=inputContext.remainingMainValue*inputContext.bsmvRatio;
+        return bsmv;
+
+    }
+    const calculateProfit = () => {
+      var profit =inputContext.remainingMainValue*inputContext.profitRatio
+        return profit;
+    }
+
+    const calculateTableValues =()=>{
+        const changeFirstRemainingMainValue = (creditAmount) => {
+          inputContext.setRemainingMainValue(creditAmount)
+        }
+        for (var i=1 ;i<=inputContext.range;i++){
+            var installmentNumber=i;
+            var installmentValue=calculatePeriodicPaymentAmount();
+            var mainValue=calculateMainValue();
+            var remainingMainValue=inputContext.remainingMainValue-mainValue;
+            var currentProfit =calculateProfit();
+            var currentKkdf=calculateKkdf();
+            var currentBsmv=calculateBsmv();
+            inputContext.setRemainingMainValue(remainingMainValue=>inputContext.remainingMainValue)
+        }
+        return {installmentNumber,installmentValue,mainValue,remainingMainValue,currentProfit,currentKkdf,currentBsmv}
+    }
+    console.log(calculateTableValues());
+
+
     const columns = [
-        { id: 'intallment-number', label: 'Taksit No', minWidth: 70 },
+        { id: 'installment-number', label: 'Taksit No', minWidth: 70 },
         { id: 'installment-value', label: 'Taksit Tutarı', minWidth: 70 },
         {
-            id: 'MainValue',
+            id: 'main-value',
             label: 'Ana Para',
             minWidth: 50,
             align: 'right',
@@ -20,8 +74,8 @@ const CashbackTable = () => {
             format: (value) => value.toLocaleString('en-US'),
         },
         {
-            id: 'profit-ratio',
-            label: 'Kâr Oranı',
+            id: 'profit-amount',
+            label: 'Kâr Tutarı',
             minWidth: 50,
             align: 'right',
             format: (value) => value.toFixed(2),
@@ -51,17 +105,7 @@ const CashbackTable = () => {
         createData('Italy', 'IT', 60483973, 301340),
 
     ];
-        const [page, setPage] = React.useState(0);
-        const [rowsPerPage, setRowsPerPage] = React.useState(12);
 
-        const handleChangePage = (event, newPage) => {
-            setPage(newPage)
-        };
-
-        const handleChangeRowsPerPage = (event) => {
-            setRowsPerPage(+event.target.value)
-            setPage(0)
-        };
 
     return (
         <div>
@@ -104,7 +148,7 @@ const CashbackTable = () => {
                     </Table>
                 </TableContainer>
                 <TablePagination
-                    rowsPerPageOptions={12}
+                    rowsPerPageOptions={0}
                     component="div"
                     count={rows.length}
                     rowsPerPage={rowsPerPage}

@@ -1,46 +1,63 @@
-import React from 'react';
+import React, {useContext, useState} from 'react';
 import {TextField, Grid, Button, Select, MenuItem, InputLabel, FormControl, FormHelperText} from "@mui/material";
+import {InputContext} from "../contexts/InputContext";
 
 
 const InputForm = () => {
-    const [taxType, setTaxType] = React.useState('BSMV');
-    const [range, setRange] = React.useState('Aylık');
+    const context = useContext(InputContext);
     const handleChangeTaxType = (event) => {
-        setTaxType(event.target.value);
+        context.setTaxType(event.target.value);
     };
     const handleChangeRange = (event) => {
-        setRange(event.target.value);
+        context.setRange(event.target.value);
     };
+
+
+
 
     return (
         <div style={{display: 'flex', justifyContent: 'center'}}>
             <Grid sx={{border: '1px solid grey', borderRadius: 2, mt: '20px', width: '600px'}}>
                 <div className="Input Row" style={{padding: 10}}>
                     <TextField
-                        id="outlined-basic"
+                        id="credit-amount-input"
                         label="Kredi Tutarı(Ana Para)"
                         variant="outlined"
                         fullWidth={true}
+                        onChange={(e)=>{
+                            context.setCreditAmount(e.target.value);
+                        }
+                    }
                     />
                 </div>
                 <div className="Input Row" style={{display: 'flex', justifyContent: 'space-around'}}>
                     <TextField
-                        id="outlined-basic"
+                        id="installment-value-input"
                         label="Taksit Sayısı"
                         variant="outlined"
                         fullWidth={false}
                         sx={{width:150}}
+                        onChange={(e)=>{
+                            context.setInstallmentValue(e.target.value);
+                        }
+                        }
+
                     />
-                    <TextField id="outlined-required"
+                    <TextField id="profit-ratio-input"
                                label="Kar Oranı"
                                variant="outlined"
                                fullWidth={false}
-                               sx={{width:150}}/>
+                               sx={{width:150}}
+                               onChange={(e)=>{
+                                   context.setProfitRatio(e.target.value);
+                               }
+                               }
+                    />
                 </div>
                 <div className="Input Row"
                      style={{display: 'flex', justifyContent: 'space-around',marginTop:10}}
                 >
-                    <FormControl sx={{minWidth: 120, maxWidth: 150}}>
+                    <FormControl sx={{minWidth: 100, maxWidth: 150}}>
                         <InputLabel >Taksit Aralığı</InputLabel>
                         <Select
                             id="range-selector"
@@ -53,19 +70,29 @@ const InputForm = () => {
                         </Select>
                         <FormHelperText>(Seçim olmaması durumda varsayılan değer "Aylık")</FormHelperText>
                     </FormControl>
-                    <FormControl sx={{ minWidth: 120, maxWidth: 150}}>
-                        <InputLabel >Vergi Tipi</InputLabel>
-                        <Select
-                            id="tax-type-selector"
-                            label="Vergi Tipi"
-                            onChange={handleChangeTaxType}
-                        >
+                    <TextField id="profit-ratio-input"
+                               label="KKDF Oranı"
+                               variant="outlined"
+                               fullWidth={false}
+                               sx={{width:150}}
+                               helperText={"(Giriş olmaması durumunda 15% olarak kabul edilir)"}
+                               onChange={(e)=>{
+                                   context.setKkdfRatio(e.target.value);
+                               }
+                               }
+                    />
+                    <TextField id="profit-ratio-input"
+                               label="BSMV Oranı"
+                               variant="outlined"
+                               fullWidth={false}
+                               sx={{width:150}}
+                               helperText={"(Giriş olmaması durumunda 5% olarak kabul edilir)"}
+                               onChange={(e)=>{
+                                   context.setBsmvRatio(e.target.value);
+                               }
+                               }
+                    />
 
-                            <MenuItem value={"BSMV"}>BSMV</MenuItem>
-                            <MenuItem value={"KKDF"}>KKDF</MenuItem>
-                        </Select>
-                        <FormHelperText>(Seçim olmaması durumda varsayılan değer "BSMV")</FormHelperText>
-                    </FormControl>
                 </div>
                 <div style={{display: 'flex', justifyContent: 'space-around',padding:10}}>
                     <Button variant="contained" color="success" sx={{margin:"2px"}}>
